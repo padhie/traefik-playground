@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+  whoami2:
+    image: containous/whoami
+    labels:
+      - "traefik.http.routers.whoami2.rule=Host(`whoami2.localhost`)"
+    networks:
+        traefik:
+            ipv4_address: 172.16.1.4
+
+networks:
+    traefik:
+        external:
+            name: traefik

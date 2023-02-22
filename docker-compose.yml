@@ -1,0 +1,34 @@
+version: '3'
+
+services:
+    reverse-proxy:
+        # The official v2 Traefik docker image
+        image: traefik:v2.1
+        # Enables the web UI and tells Traefik to listen to docker
+        command: --api.insecure=true --providers.docker --accesslog=true --accesslog.filepath=/etc/log/traefik/access.log --log.filePath=/etc/log/traefik/traefik.log
+        #restart: always
+        ports:
+            - "80:80"
+            - "8080:8080"
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - ./log/traefik.log:/etc/log/traefik/traefik.log
+        networks:
+            traefik:
+                ipv4_address: 172.16.1.1
+
+    whoami:
+        image: containous/whoami
+        labels:
+            - "traefik.http.routers.whoami.rule=Host(`whoami.localhost`)"
+        networks:
+            traefik:
+                ipv4_address: 172.16.1.2
+
+networks:
+    traefik:
+        name: traefik
+        driver: bridge
+        ipam:
+            config:
+                - subnet: 172.16.0.0/16
